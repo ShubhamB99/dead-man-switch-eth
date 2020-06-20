@@ -6,20 +6,18 @@ contract DeadManSwitch {
 
     using SafeMath for uint;
 
-    address owner;
-    address nextOwner;
-    uint lastBlock;
-    uint ownerBalance;
-    bool isOwnerAlive;
+    address public owner;
+    address public nextOwner;
+    uint public lastBlock;
+    bool public isOwnerAlive;
 
-    event SuccessfulTransfer(uint amount);
+    event OwnerDead();
 
     constructor (address _nextOwner) public {
-        require(_nextOwner != msg.sender, "Too smart xP!");
+        require(_nextOwner != msg.sender, "What will you do with money after you're dead?");
         owner = msg.sender;
         nextOwner = _nextOwner;
         lastBlock = block.number;
-        ownerBalance = owner.balance;
         isOwnerAlive = true;
     }
 
@@ -33,28 +31,20 @@ contract DeadManSwitch {
         _;
     }
 
-    function () external payable {
-    }
-
     function isAlive() public onlyOwner {
+        require(isOwnerAlive, "Can't come back from the dead, can you?");
         lastBlock = block.number;
         isOwnerAlive = true;
     }
 
-    function getOriginalBalance() public view onlyFutureOwner returns (uint) {
-        return ownerBalance;
+    function getOwnerBalance() public view onlyFutureOwner returns (uint) {
+        return owner.balance;
     }
 
-    function getNewBalance() public view onlyFutureOwner returns (uint) {
-        return nextOwner.balance;
-    }
-
-    function transferFunds() public onlyFutureOwner {
-        uint currentBlock = block.number;
-        require(currentBlock.sub(lastBlock) > 10, "The owner is still alive!");
+    function isOwnerDead() public onlyFutureOwner returns (uint) {
+        require(block.number.sub(lastBlock) > 10, "The owner is still alive!");
         isOwnerAlive = false;
-        (bool transferred, ) = msg.sender.call.value(ownerBalance)("");
-        require(transferred, "Transfer of money failed.");
-        emit SuccessfulTransfer(ownerBalance);
+        emit OwnerDead();
+        return owner.balance;
     }
 }

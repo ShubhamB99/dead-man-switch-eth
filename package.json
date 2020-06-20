@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/ShubhamB99/dead-man-switch-eth#readme",
   "devDependencies": {
+    "@openzeppelin/contract-loader": "^0.6.1",
     "@truffle/hdwallet-provider": "^1.0.35",
     "fs": "0.0.1-security",
     "truffle": "^5.1.31",
